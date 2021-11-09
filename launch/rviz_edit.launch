@@ -1,0 +1,7 @@
+<launch>
+	<node pkg="rviz_map_editor" type="rviz_map_editor.py" name="rviz_map_editor" output="screen" respawn="true">
+		
+		<param name ="lane_type" value = "True"/>
+		
+	</node>
+</launch>
