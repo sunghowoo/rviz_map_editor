@@ -16,6 +16,7 @@ from PIL import Image, ImageDraw
 import rospy, tf, math, traceback
 from std_msgs.msg import Bool
 from geometry_msgs.msg import *
+from nav_msgs.msg import *
 from laser_perceptions.msg import LaserSampleSetList, LaserSampleSet
 from std_srvs.srv import SetBool
 import numpy as np
@@ -34,25 +35,51 @@ import matplotlib.pyplot as plt
 class DrawImageHandler():
  
     def __init__(self):
+        self.line_coordinate = []
+        self.remove_coordinate =[]
         self.im = None
         self.draw = None
         self.subs = []; self.pubs = {}; self.srvs = []
-        self.subs.append(rospy.Subscriber("/clicked_point", PointStamped , self.coordinate_cb))
+        self.subs.append(rospy.Subscriber("/line", PointStamped , self.coordinate_cb))
+        self.subs.append(rospy.Subscriber("/remove", PointStamped , self.remove_cb))
 
-    def coordinate_cb(self, msg):
-        
-        self.line_coordinate = []
-        line_pose = Pose2D() 
-        line_pose.x= msg.pose.orientation.x
-        line_pose.y= msg.pose.orientation.y
-        self.line_coordinate.append(line_pose)
+        self.subs.append(rospy.Subscriber("/map", OccupancyGrid , self.map_cb))
 
-  
+        self.running_once = False
+
 	def __del__(self):
 		self.shutdown()
 		for p in self.pubs.values():p.unregister()
 		for s in self.subs:s.unregister()
 		rospy.loginfo("[rviz_map_editor] Shutdowning..")
+
+    def coordinate_cb(self, msg):
+        
+        line_pose_array = []
+        line_pose = Pose2D() 
+        line_pose.x= msg.point.x
+        line_pose.y= msg.point.y
+        line_pose_array.append(line_pose)
+        self.line_coordinate.append(line_pose_array)
+        rospy.loginfo("[rviz_map_editor] coordinate_cb: %s ",self.line_coordinate )
+
+    def remove_cb(self, msg):
+        remove_pose_array = []
+        remove_pose = Pose2D() 
+        remove_pose.x= msg.point.x
+        remove_pose.y= msg.point.y
+        remove_pose_array.append(remove_pose)
+        self.remove_coordinate.append(remove_pose_array)
+        rospy.loginfo("[rviz_map_editor] remove_cb :  %s ",self.remove_coordinate )
+
+
+    def map_cb(self,msg):
+
+        self.width = msg.info.width 
+        self.height = msg.info.height
+        self.resolution =msg.info.resolution 
+        self.origin_x = msg.info.origin.position.x
+        self.origin_y =msg.info.origin.position.y
 
     def getImage(self, path):
         self.im = Image.open(path)
@@ -71,44 +98,69 @@ class DrawImageHandler():
 
     def __drawCircle(self, (x1,y1), (x2,y2) ):
 
-        self.draw.ellipse([(x1, y1), (x2, y2)],fill = 'black' , outline= None)
+        self.draw.ellipse([(x1, y1), (x2, y2)],fill = 'white' , outline= None)
         
  
     def flushing(self):
         pass
  
     def save(self):
-        self.im.save("/home/syscon/Desktop/testing_map.pgm")
+        self.im.save("/home/syscon/catkin_ws/src/rviz_map_editor/edit_.pgm")
+        rospy.logwarn("[rviz_map_editor] successfully save map (~ing)  ")
+
+    def global_to_pixel_x(self,coordinate):
+
+        return     (1/self.resolution) *  (coordinate - self.origin_x) 
+        
+    def global_to_pixel_y(self,coordinate):
+
+        return     self.height-(1/self.resolution) * ( coordinate - self.origin_y) 
+
 
     def main(self):
-        path = "/home/syscon/Desktop/rviz_map_editor/cradle_world.pgm"
-        self.getImage(path)
-        if (rospy.is_shutdown()) :
+    
+        while(True):
             try:
+                if rospy.is_shutdown():
+                    if self.running_once == False:            
+                        if len(self.line_coordinate) > 1 : 
+                            
+                            if len(self.line_coordinate) % 2 == 1 : ## delete odd coordinate
+                                self.line_coordinate.pop([-1])
+                            i = 0
+                            division =  len(self.line_coordinate) // 2 
+                            for  i in range(0, division) :
 
-            if len(self.line_coordinate) > 0 : 
-                
-                if len(self.line_coordinate) % 2 == 1 : ## delete odd coordinate
-                    self.line_coordinate.pop([-1])
-                
-                for (int i in len(self.line_coordinate)//2):
-                    x1 = self.line_coordinate[2*i].pose.x
-                    y1 = self.line_coordinate[2*i].pose.x
-                    x2 = self.line_coordinate[2*i+1].pose.x
-                    y2 = self.line_coordinate[2*i+1].pose.x                                                           
-                    self.__drawLine( (x1 , y1 ), (x2 , y2) ,width =3 )
+                                x1 = self.global_to_pixel_x( self.line_coordinate[2*i][0].x  )
+                                y1 = self.global_to_pixel_y(self.line_coordinate[2*i][0].y  )
+                                x2 = self.global_to_pixel_x(self.line_coordinate[2*i+1][0].x  )
+                                y2 = self.global_to_pixel_y(self.line_coordinate[2*i+1][0].y  )                                                        
+                                self.__drawLine( (x1 , y1 ), (x2 , y2) ,width =3 )
 
-
+                        if len(self.remove_coordinate) > 0:
+                            i = 0
+                            radius = 2
+                            r = (1/self.resolution) * radius 
+                            for i in range(0,len(self.remove_coordinate)):
+                                x_r1 = self.global_to_pixel_x( self.remove_coordinate[i][0].x )
+                                y_r1 = self.global_to_pixel_y(self.remove_coordinate[i][0].y )
+                                self.__drawCircle( (x_r1-r , y_r1 -r ), (x_r1+r , y_r1+r) )
+                                #rospy.loginfo("[rviz_map_editor] pix_coordinate x :  %s ",x1 )
+                                #rospy.loginfo("[rviz_map_editor] pix_coordinate y :  %s ",y1)
+                            self.save()
+                            self.running_once =True
+                        
             except Exception, e:
                 rospy.logwarn("[rviz_map_editor] %s"%e)
                 return False, e
- 
+
 if __name__ == "__main__":
     rospy.init_node('rviz_map_editor')    
-    
     a = DrawImageHandler()
+    path = "/home/syscon/catkin_ws/src/rviz_map_editor/rollout.pgm"
+    a.getImage(path)    
     a.main()
     #a.getImage(path)
     #a.drawRect((100,100),(200,200), width=3)
-    if rospy.is_shutdown():
-        a.save()
+     
+
