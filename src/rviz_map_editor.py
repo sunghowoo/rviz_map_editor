@@ -139,7 +139,7 @@ class DrawImageHandler():
 
                         if len(self.remove_coordinate) > 0:
                             i = 0
-                            radius = 2
+                            radius = 1
                             r = (1/self.resolution) * radius 
                             for i in range(0,len(self.remove_coordinate)):
                                 x_r1 = self.global_to_pixel_x( self.remove_coordinate[i][0].x )
