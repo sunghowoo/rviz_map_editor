@@ -1,7 +1,14 @@
 <launch>
+
+	<arg name="robot_number"	default=" "  />
+        <arg name="load_path"		default="/home/syscon/catkin_ws/src/rviz_map_editor/original_map/rollout.pgm  "   />        
+        <arg name="save_path"		default="/home/syscon/catkin_ws/src/rviz_map_editor/edit1_.pgm  "   />
+
 	<node pkg="rviz_map_editor" type="rviz_map_editor.py" name="rviz_map_editor" output="screen" respawn="true">
 		
-		<param name ="lane_type" value = "True"/>
+		<param name="robot_number" value="$(arg robot_number)"/>
+                <param name="load_path" value="$(arg load_path)"/>
+                <param name="save_path" value="$(arg save_path)"/>
 		
 	</node>
 </launch>

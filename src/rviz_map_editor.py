@@ -35,6 +35,8 @@ import matplotlib.pyplot as plt
 class DrawImageHandler():
  
     def __init__(self):
+        rospy.logwarn("[rviz_map_editor] successfully start editing map  ")
+        robot_number = rospy.get_param("~robot_number", '') 
         self.line_coordinate = []
         self.remove_coordinate =[]
         self.im = None
@@ -42,9 +44,8 @@ class DrawImageHandler():
         self.subs = []; self.pubs = {}; self.srvs = []
         self.subs.append(rospy.Subscriber("/line", PointStamped , self.coordinate_cb))
         self.subs.append(rospy.Subscriber("/remove", PointStamped , self.remove_cb))
-
-        self.subs.append(rospy.Subscriber("/map", OccupancyGrid , self.map_cb))
-
+        self.subs.append(rospy.Subscriber("%s/map"%robot_number, OccupancyGrid , self.map_cb))
+         
         self.running_once = False
 
 	def __del__(self):
@@ -105,7 +106,8 @@ class DrawImageHandler():
         pass
  
     def save(self):
-        self.im.save("/home/syscon/catkin_ws/src/rviz_map_editor/edit_.pgm")
+        save_path = rospy.get_param("~save_path", "/home/syscon/catkin_ws/src/rviz_map_editor/edit_.pgm" )
+        self.im.save(save_path)
         rospy.logwarn("[rviz_map_editor] successfully save map (~ing)  ")
 
     def global_to_pixel_x(self,coordinate):
@@ -147,8 +149,9 @@ class DrawImageHandler():
                                 self.__drawCircle( (x_r1-r , y_r1 -r ), (x_r1+r , y_r1+r) )
                                 #rospy.loginfo("[rviz_map_editor] pix_coordinate x :  %s ",x1 )
                                 #rospy.loginfo("[rviz_map_editor] pix_coordinate y :  %s ",y1)
-                            self.save()
-                            self.running_once =True
+                                
+                        self.save()
+                        self.running_once =True
                         
             except Exception, e:
                 rospy.logwarn("[rviz_map_editor] %s"%e)
@@ -157,10 +160,9 @@ class DrawImageHandler():
 if __name__ == "__main__":
     rospy.init_node('rviz_map_editor')    
     a = DrawImageHandler()
-    path = "/home/syscon/catkin_ws/src/rviz_map_editor/rollout.pgm"
+    path = rospy.get_param("~load_path", "/home/syscon/catkin_ws/src/rviz_map_editor/rollout.pgm")
     a.getImage(path)    
     a.main()
-    #a.getImage(path)
-    #a.drawRect((100,100),(200,200), width=3)
+
      
 
