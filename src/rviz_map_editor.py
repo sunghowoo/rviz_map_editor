@@ -128,7 +128,7 @@ class DrawImageHandler():
                         if len(self.line_coordinate) > 1 : 
                             
                             if len(self.line_coordinate) % 2 == 1 : ## delete odd coordinate
-                                self.line_coordinate.pop([-1])
+                                self.line_coordinate.pop(-1)
                             i = 0
                             division =  len(self.line_coordinate) // 2 
                             for  i in range(0, division) :
@@ -154,8 +154,8 @@ class DrawImageHandler():
                         self.running_once =True
                         
             except Exception, e:
-                rospy.logwarn("[rviz_map_editor] %s"%e)
-                return False, e
+                rospy.logwarn("[rviz_map_editor] %s"%traceback.format_exc())
+                return False
 
 if __name__ == "__main__":
     rospy.init_node('rviz_map_editor')    
