@@ -2,7 +2,7 @@
 
 작성자 : 우성호 , 작성일지: 2021/11/25
 
-#### 목적 :  rviz 를 이용해서 스캔 값을 기준으로 간단히 맵 (.png)를  수정한다
+#### 목적 :  rviz 를 이용해서 스캔 값을 기준으로 간단히 맵 (.pgm)를  수정한다
 
 ---
 
@@ -44,11 +44,11 @@ Installation :  Rviz_map_editor Repo를 사용자 컴퓨터에 make를 하면 �
 
 1. rviz_edit.launch를 실행하면 시작한다는 문구가 뜨며 그떄부터 Rviz 로부터 토픽을 받아온다.
 
-2. ** rviz에서 부터 클릭된 순간 낙장불입이되며 다시 되돌릴 수 없다. 다시 하기위해선 rviz를 재시작 , rviz_edit 재시작이 필요하다
+2. ** rviz에서 부터 클릭된 순간 취소할 수없어 신중하게 클릭해야한다. 다시 하기위해선 rviz를 재시작 , rviz_edit 재시작이 필요하다
 
-3. 모든곳을 수정했으면 riviz_map_editor노드를 종료(ctrl + c) 를 하게 되고 자동저장이 된다.
+3. 모든곳을 수정했으면 rviz_map_editor노드를 종료(ctrl + c) 를 하게 되고 자동저장이 된다.
 
-4. ** edit_map.png를 nano를 열어 한줄을 추가해줘야한다.  original map에서 보여진 '' **# CREATOR: map_saver.cpp 0.050 m/pix ''** 를 삽입하여 저장해준다 . ( map server를 거치지않는 png  파일을 수정하므로 # 이 붙지않는다. Software 2팀이 맵을 읽어올때 (#) 필요하단 사실..!)
+4. ** 실제로 로봇에 넣기전 수정한 맵을 nano를 열어 한줄을 추가해줘야한다.  original map에서 nano로 켜보면 '' **# CREATOR: map_saver.cpp 0.050 m/pix ''**  이란 문구가있는데 이를 수정된 파일에도 동일하게 삽입하여 저장해준다 . ( map server를 거치지않는 pgm  파일을 수정하므로 # 이 붙지않는다. Software 2팀이 맵을 읽어올때 (#) 필요하단 사실..!)
 
    <details>
        <summary>영상 첨부</summary>
