@@ -86,7 +86,7 @@ PlantFlagTool::~PlantFlagTool()
 void PlantFlagTool::onInitialize()
 {
   pub_remover = nh.advertise<geometry_msgs::PointStamped>("/remove", 1);
-  flag_resource_ = "package://rviz_plugin_tutorials/media/flag.dae";
+  flag_resource_ = "package://rviz_map_editor/media/flag.dae";
 
   if( rviz::loadMeshFromResource( flag_resource_ ).isNull() )
   {

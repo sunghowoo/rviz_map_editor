@@ -17,7 +17,6 @@ import rospy, tf, math, traceback
 from std_msgs.msg import Bool
 from geometry_msgs.msg import *
 from nav_msgs.msg import *
-from laser_perceptions.msg import LaserSampleSetList, LaserSampleSet
 from std_srvs.srv import SetBool
 import numpy as np
 # for marker
@@ -137,7 +136,7 @@ class DrawImageHandler():
                                 y1 = self.global_to_pixel_y(self.line_coordinate[2*i][0].y  )
                                 x2 = self.global_to_pixel_x(self.line_coordinate[2*i+1][0].x  )
                                 y2 = self.global_to_pixel_y(self.line_coordinate[2*i+1][0].y  )                                                        
-                                self.__drawLine( (x1 , y1 ), (x2 , y2) ,width =3 )
+                                self.__drawLine( (x1 , y1 ), (x2 , y2) ,width =1 )
 
                         if len(self.remove_coordinate) > 0:
                             i = 0
