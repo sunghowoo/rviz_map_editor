@@ -4,6 +4,8 @@
 
 #### 목적 :  rviz 를 이용해서 스캔 값을 기준으로 간단히 맵 (.pgm)를  수정한다
 
+Youtube: https://www.youtube.com/watch?v=WKNOM6503FI&ab_channel=SunghoWoo
+
 ---
 
 Installation :  Rviz_map_editor Repo를 사용자 컴퓨터에 make를 하면 자동으로 Rviz tool 까지 깔린다. (편안..)

@@ -124,6 +124,17 @@ class DrawImageHandler():
             try:
                 if rospy.is_shutdown():
                     if self.running_once == False:            
+
+                        if len(self.remove_coordinate) > 0:
+                            i = 0
+                            radius = 1
+                            r = (1/self.resolution) * radius 
+                            for i in range(0,len(self.remove_coordinate)):
+                                x_r1 = self.global_to_pixel_x( self.remove_coordinate[i][0].x )
+                                y_r1 = self.global_to_pixel_y(self.remove_coordinate[i][0].y )
+                                self.__drawCircle( (x_r1-r , y_r1 -r ), (x_r1+r , y_r1+r) )
+                                #rospy.loginfo("[rviz_map_editor] pix_coordinate x :  %s ",x1 )
+                                #rospy.loginfo("[rviz_map_editor] pix_coordinate y :  %s ",y1)
                         if len(self.line_coordinate) > 1 : 
                             
                             if len(self.line_coordinate) % 2 == 1 : ## delete odd coordinate
@@ -136,19 +147,7 @@ class DrawImageHandler():
                                 y1 = self.global_to_pixel_y(self.line_coordinate[2*i][0].y  )
                                 x2 = self.global_to_pixel_x(self.line_coordinate[2*i+1][0].x  )
                                 y2 = self.global_to_pixel_y(self.line_coordinate[2*i+1][0].y  )                                                        
-                                self.__drawLine( (x1 , y1 ), (x2 , y2) ,width =1 )
-
-                        if len(self.remove_coordinate) > 0:
-                            i = 0
-                            radius = 1
-                            r = (1/self.resolution) * radius 
-                            for i in range(0,len(self.remove_coordinate)):
-                                x_r1 = self.global_to_pixel_x( self.remove_coordinate[i][0].x )
-                                y_r1 = self.global_to_pixel_y(self.remove_coordinate[i][0].y )
-                                self.__drawCircle( (x_r1-r , y_r1 -r ), (x_r1+r , y_r1+r) )
-                                #rospy.loginfo("[rviz_map_editor] pix_coordinate x :  %s ",x1 )
-                                #rospy.loginfo("[rviz_map_editor] pix_coordinate y :  %s ",y1)
-                                
+                                self.__drawLine( (x1 , y1 ), (x2 , y2) ,width =1 )                                
                         self.save()
                         self.running_once =True
                         
